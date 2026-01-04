@@ -72,6 +72,10 @@ The Bytebot Easypanel template is prepared and will be submitted to the official
 
 Here's the Docker Compose configuration for Easypanel deployment:
 
+<Note>
+  **Database Configuration**: When using the one-click template, Easypanel automatically uses the project name as the database name. If deploying via Docker Compose manually, you can use a fixed database name like 'bytebotdb' as shown below.
+</Note>
+
 ```yaml
 version: '3.8'
 

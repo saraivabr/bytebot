@@ -80,11 +80,13 @@ Users deploying Bytebot via this template need:
 The template configures these environment variables:
 
 ### bytebot-agent
-- `DATABASE_URL` - PostgreSQL connection string
+- `DATABASE_URL` - PostgreSQL connection string (uses project name as database name)
 - `BYTEBOT_DESKTOP_BASE_URL` - URL to desktop service
 - `ANTHROPIC_API_KEY` - Anthropic API key (optional)
 - `OPENAI_API_KEY` - OpenAI API key (optional)
 - `GEMINI_API_KEY` - Google Gemini API key (optional)
+
+**Note**: The database URL uses Easypanel's convention of using the project name as the database name. The format is: `postgresql://postgres:[password]@[project]_postgres:5432/[project]`
 
 ### bytebot-ui
 - `NODE_ENV` - Set to production
