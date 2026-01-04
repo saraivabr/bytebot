@@ -36,7 +36,8 @@ You can deploy Bytebot on Easypanel using the Docker Compose file from the repos
         - `ANTHROPIC_API_KEY` for Claude models
         - `OPENAI_API_KEY` for GPT models
         - `GEMINI_API_KEY` for Gemini models
-      - Set `DATABASE_URL=postgresql://postgres:postgres@postgres:5432/bytebotdb`
+      - The database URL will be automatically configured by Easypanel
+      - If manually setting, ensure it matches your PostgreSQL service configuration
   </Step>
   
   <Step title="4. Configure Networking">

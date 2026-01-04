@@ -4,13 +4,16 @@ import { Input } from "./meta";
 export function generate(input: Input): Output {
   const services: Services = [];
 
+  // Generate or use provided postgres password
+  const dbPassword = input.postgresPassword || randomPassword();
+
   // PostgreSQL Database Service
   services.push({
     type: "postgres",
     data: {
       projectName: input.projectName,
       serviceName: "postgres",
-      password: input.postgresPassword || randomPassword(),
+      password: dbPassword,
     },
   });
 
@@ -38,7 +41,7 @@ export function generate(input: Input): Output {
 
   // Bytebot Agent Service (Task orchestration & AI coordination)
   const envVars = [
-    `DATABASE_URL=postgresql://postgres:${input.postgresPassword || randomPassword()}@$(PROJECT_NAME)_postgres:5432/$(PROJECT_NAME)`,
+    `DATABASE_URL=postgresql://postgres:${dbPassword}@$(PROJECT_NAME)_postgres:5432/$(PROJECT_NAME)`,
     "BYTEBOT_DESKTOP_BASE_URL=http://$(PROJECT_NAME)_bytebot-desktop:9990",
   ];
 
