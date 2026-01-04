@@ -87,7 +87,11 @@ Bytebot isn't limited to web interfaces. It can:
 
 Just click and add your AI provider API key.
 
-**Option 2: Docker Compose**
+**Option 2: Easypanel**
+
+Deploy on your own Easypanel instance using Docker Compose. [See Easypanel deployment guide →](https://docs.bytebot.ai/deployment/easypanel)
+
+**Option 3: Docker Compose**
 
 ```bash
 git clone https://github.com/bytebot-ai/bytebot.git
