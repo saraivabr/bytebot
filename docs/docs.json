@@ -29,6 +29,7 @@
             "group": "Deployment",
             "pages": [
               "deployment/railway",
+              "deployment/easypanel",
               "deployment/helm",
               "deployment/litellm"
             ]

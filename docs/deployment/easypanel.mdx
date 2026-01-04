@@ -1,0 +1,275 @@
+---
+title: "Deploying Bytebot on Easypanel"
+description: "Complete guide to deploying Bytebot on Easypanel using Docker Compose or the one-click template"
+---
+
+> **TL;DR –** Deploy Bytebot on your Easypanel instance using Docker Compose or wait for the official one-click template in the Easypanel marketplace.
+
+---
+
+## What is Easypanel?
+
+Easypanel is a modern, open-source server control panel that simplifies application deployment and management. It provides a user-friendly interface for deploying Docker containers, managing databases, and handling SSL certificates.
+
+---
+
+## Deployment Options
+
+### Option 1: Docker Compose Deployment (Available Now)
+
+You can deploy Bytebot on Easypanel using the Docker Compose file from the repository.
+
+<Steps>
+  <Step title="1. Access Your Easypanel Instance">
+    Log in to your Easypanel dashboard at your server's URL.
+  </Step>
+  
+  <Step title="2. Create a New Project">
+    Click on "Projects" and create a new project named "bytebot".
+  </Step>
+  
+  <Step title="3. Deploy from Docker Compose">
+    - In your project, click "Add Service" → "From Docker Compose"
+    - Upload or paste the Bytebot docker-compose.yml file
+    - Configure environment variables:
+      - Add at least one AI provider API key:
+        - `ANTHROPIC_API_KEY` for Claude models
+        - `OPENAI_API_KEY` for GPT models
+        - `GEMINI_API_KEY` for Gemini models
+      - Set `DATABASE_URL=postgresql://postgres:postgres@postgres:5432/bytebotdb`
+  </Step>
+  
+  <Step title="4. Configure Networking">
+    - Ensure the bytebot-ui service is exposed on port 9992
+    - Set up a domain or use the Easypanel provided domain
+    - Enable SSL/HTTPS for secure access
+  </Step>
+  
+  <Step title="5. Deploy">
+    Click "Deploy" and wait for all services to start. Monitor the logs to ensure successful deployment.
+  </Step>
+  
+  <Step title="6. Access Bytebot">
+    Once deployed, access the Bytebot UI at your configured domain. You should see the task interface ready to use.
+  </Step>
+</Steps>
+
+### Option 2: One-Click Template (Coming Soon)
+
+The Bytebot Easypanel template is prepared and will be submitted to the official Easypanel marketplace. Once approved, you'll be able to deploy with a single click.
+
+**What the template includes:**
+- Pre-configured services for UI, Agent, Desktop, and Database
+- Automatic networking setup between services
+- Form-based configuration for API keys
+- SSL certificate management
+- One-click deployment
+
+---
+
+## Docker Compose Configuration
+
+Here's the Docker Compose configuration for Easypanel deployment:
+
+```yaml
+version: '3.8'
+
+services:
+  bytebot-desktop:
+    image: ghcr.io/bytebot-ai/bytebot-desktop:edge
+    shm_size: "2g"
+    privileged: true
+    environment:
+      - DISPLAY=:0
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=bytebotdb
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  bytebot-agent:
+    image: ghcr.io/bytebot-ai/bytebot-agent:edge
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/bytebotdb
+      - BYTEBOT_DESKTOP_BASE_URL=http://bytebot-desktop:9990
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    depends_on:
+      - postgres
+      - bytebot-desktop
+    restart: unless-stopped
+
+  bytebot-ui:
+    image: ghcr.io/bytebot-ai/bytebot-ui:edge
+    ports:
+      - "9992:9992"
+    environment:
+      - NODE_ENV=production
+      - BYTEBOT_AGENT_BASE_URL=http://bytebot-agent:9991
+      - BYTEBOT_DESKTOP_VNC_URL=http://bytebot-desktop:9990/websockify
+    depends_on:
+      - bytebot-agent
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+```
+
+---
+
+## Configuration
+
+### Required Environment Variables
+
+You must provide at least one AI provider API key:
+
+| Variable | Description | Where to Get |
+|----------|-------------|--------------|
+| `ANTHROPIC_API_KEY` | Anthropic Claude API key (recommended) | [console.anthropic.com](https://console.anthropic.com/) |
+| `OPENAI_API_KEY` | OpenAI GPT API key | [platform.openai.com/api-keys](https://platform.openai.com/api-keys) |
+| `GEMINI_API_KEY` | Google Gemini API key | [aistudio.google.com/app/apikey](https://aistudio.google.com/app/apikey) |
+
+### Service Ports
+
+| Service | Port | Exposure | Purpose |
+|---------|------|----------|---------|
+| bytebot-ui | 9992 | Public | Web interface |
+| bytebot-agent | 9991 | Internal | Task API |
+| bytebot-desktop | 9990 | Internal | Desktop & VNC |
+| postgres | 5432 | Internal | Database |
+
+---
+
+## Security Considerations
+
+### Network Isolation
+- Only the UI service should be exposed to the public internet
+- All internal services communicate via Easypanel's private networking
+- Database credentials should be kept secure
+
+### Authentication
+- Consider adding authentication to the UI in production
+- Use Easypanel's built-in authentication features or an external auth provider
+- Keep API keys secure in environment variables
+
+### SSL/HTTPS
+- Always enable SSL for production deployments
+- Easypanel can automatically manage Let's Encrypt certificates
+- Configure your domain properly for SSL to work
+
+---
+
+## Resource Requirements
+
+### Minimum Recommended Specifications
+
+- **CPU**: 2 cores
+- **RAM**: 4 GB
+- **Storage**: 20 GB
+- **Network**: Stable internet connection
+
+The desktop service requires more resources due to the virtual desktop environment.
+
+### Service Resource Allocation
+
+- **bytebot-desktop**: 1-2 GB RAM, 1 core (can be adjusted)
+- **bytebot-agent**: 512 MB RAM, 0.5 core
+- **bytebot-ui**: 256 MB RAM, 0.5 core
+- **postgres**: 512 MB RAM, 0.5 core
+
+---
+
+## Troubleshooting
+
+| Symptom | Likely Cause | Solution |
+|---------|--------------|----------|
+| UI shows "connecting..." | Desktop service not ready | Wait for desktop container to fully start, check logs |
+| Agent returns 401/403 errors | Missing or invalid API key | Verify API key is correctly set in environment variables |
+| Slow desktop performance | Insufficient resources | Increase CPU/RAM allocation for desktop service |
+| Database connection errors | Database not ready | Ensure postgres service is healthy, check connection string |
+| SSL certificate issues | Domain not configured | Properly configure domain in Easypanel, enable auto-SSL |
+
+### Checking Logs
+
+In Easypanel:
+1. Navigate to your project
+2. Click on a service
+3. View the "Logs" tab
+4. Look for error messages or startup issues
+
+### Common Issues
+
+**Desktop Container Fails to Start:**
+- Ensure privileged mode is enabled for bytebot-desktop
+- Check that shm_size is set to at least 2g
+
+**Services Can't Communicate:**
+- Verify all services are in the same Easypanel project
+- Check that service names match the URLs in environment variables
+- Ensure Easypanel's internal networking is working
+
+---
+
+## Advanced Configuration
+
+### Custom Domain Setup
+
+1. In Easypanel, navigate to your bytebot-ui service
+2. Add a custom domain under "Domains"
+3. Point your domain's DNS to your Easypanel server
+4. Enable SSL for automatic certificate management
+
+### Scaling
+
+For production deployments:
+- Increase resources allocated to the desktop service for better performance
+- Consider using external PostgreSQL for better reliability
+- Set up automated backups of the database volume
+
+### Using External Database
+
+Replace the postgres service with an external database:
+1. Remove the postgres service from Docker Compose
+2. Update `DATABASE_URL` to point to your external PostgreSQL instance
+3. Ensure the database is accessible from your Easypanel server
+
+---
+
+## Updating Bytebot
+
+To update to the latest version:
+
+1. In Easypanel, go to your Bytebot services
+2. For each service (ui, agent, desktop), update the image tag
+3. Pull the latest `edge` tag or specify a version
+4. Restart the services
+
+**Note:** Database schema migrations are handled automatically by the agent service.
+
+---
+
+## Next Steps
+
+After deployment:
+- Explore the [REST APIs](/api-reference/introduction) for programmatic task creation
+- Join the [Discord community](https://discord.com/invite/d9ewZkWPTP) for support
+- Read about [task creation](/guides/task-creation) best practices
+- Learn about [password management](/guides/password-management) for authenticated tasks
+
+---
+
+## Support
+
+Need help with your Easypanel deployment?
+
+- **Documentation**: [docs.bytebot.ai](https://docs.bytebot.ai)
+- **Discord**: [discord.com/invite/d9ewZkWPTP](https://discord.com/invite/d9ewZkWPTP)
+- **GitHub Issues**: [github.com/bytebot-ai/bytebot/issues](https://github.com/bytebot-ai/bytebot/issues)
+- **Easypanel Docs**: [easypanel.io/docs](https://easypanel.io/docs)

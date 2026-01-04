@@ -1,0 +1,167 @@
+name: Bytebot
+description: |
+  Bytebot is an open-source AI Desktop Agent that gives AI its own computer to complete tasks for you.
+  
+  An AI agent with a full virtual desktop environment that can use any application, download files, 
+  log into websites, and complete complex multi-step workflows across different programs.
+  
+  ### Key Features:
+  - Complete Ubuntu Linux environment with pre-installed applications
+  - Natural language task creation
+  - File upload support for document processing
+  - Live desktop view with real-time task monitoring
+  - Takeover mode for manual intervention
+  - Persistent environment for installed programs
+  - Support for multiple AI providers (Anthropic Claude, OpenAI GPT, Google Gemini)
+  
+  ### What Gets Deployed:
+  - **bytebot-ui**: Web interface for task management (port 9992)
+  - **bytebot-agent**: Task orchestration and AI coordination (port 9991)
+  - **bytebot-desktop**: Virtual Ubuntu desktop with XFCE (port 9990)
+  - **postgres**: Database for task persistence
+  
+  All services communicate via private networking for security.
+
+schema:
+  type: object
+  required:
+    - projectName
+    - aiProvider
+  properties:
+    projectName:
+      type: string
+      title: Project Name
+      default: bytebot
+      description: Name for your Bytebot project
+    
+    aiProvider:
+      type: string
+      title: AI Provider
+      default: anthropic
+      enum:
+        - anthropic
+        - openai
+        - gemini
+      description: Choose your AI provider (you'll need an API key)
+    
+    anthropicApiKey:
+      type: string
+      title: Anthropic API Key
+      description: Your Anthropic API key (for Claude models). Get one at https://console.anthropic.com/
+      default: ""
+    
+    openaiApiKey:
+      type: string
+      title: OpenAI API Key
+      description: Your OpenAI API key (for GPT models). Get one at https://platform.openai.com/api-keys
+      default: ""
+    
+    geminiApiKey:
+      type: string
+      title: Google Gemini API Key
+      description: Your Google Gemini API key. Get one at https://aistudio.google.com/app/apikey
+      default: ""
+    
+    postgresPassword:
+      type: string
+      title: PostgreSQL Password
+      default: postgres
+      description: Password for PostgreSQL database
+
+benefits:
+  - title: Complete Task Autonomy
+    description: Give Bytebot tasks and watch it autonomously complete them using a full desktop environment
+  - title: Document Processing
+    description: Upload PDFs, spreadsheets, and documents for Bytebot to analyze and process
+  - title: Multi-Application Workflows
+    description: Use real desktop applications, browsers, and command-line tools together
+  - title: Self-Hosted & Private
+    description: Everything runs on your infrastructure with full control over your data
+
+features:
+  - label: Natural Language Tasks
+    description: Create tasks using simple descriptions - no coding required
+  - label: Live Desktop Streaming
+    description: Watch Bytebot work in real-time through the web interface
+  - label: File Upload Support
+    description: Drop files onto tasks for processing and analysis
+  - label: Persistent Desktop
+    description: Installed programs and configurations persist between tasks
+  - label: Multiple AI Providers
+    description: Works with Anthropic Claude, OpenAI GPT, and Google Gemini
+  - label: REST API
+    description: Programmatically create tasks and control the desktop
+
+tags:
+  - AI
+  - Automation
+  - Desktop Agent
+  - Task Automation
+  - AI Assistant
+  - RPA
+
+instructions: |
+  ### Getting Started
+  
+  1. **Access the UI**: Once deployed, access Bytebot UI on port 9992
+  2. **Add API Key**: Make sure you've provided an API key for your chosen AI provider
+  3. **Create Your First Task**: Use natural language to describe what you want Bytebot to do
+  4. **Watch It Work**: See Bytebot complete tasks in the live desktop view
+  
+  ### Configuration
+  
+  - The desktop environment runs on port 9990 (internal)
+  - The agent API runs on port 9991 (internal)
+  - The web UI is accessible on port 9992 (public)
+  - Database runs on the default PostgreSQL port (internal)
+  
+  ### API Keys
+  
+  You need at least one API key for an AI provider:
+  - **Anthropic Claude**: Recommended for best performance. Get key at https://console.anthropic.com/
+  - **OpenAI GPT**: Alternative option. Get key at https://platform.openai.com/api-keys
+  - **Google Gemini**: Another alternative. Get key at https://aistudio.google.com/app/apikey
+  
+  ### Example Tasks
+  
+  Try these to get started:
+  - "Go to Wikipedia and create a summary of quantum computing"
+  - "Take screenshots of the top 5 news websites"
+  - "Research flights from NYC to London and create a comparison document"
+  
+  ### Security Notes
+  
+  - Only the UI service is exposed publicly
+  - All internal services communicate via private networking
+  - Consider adding authentication for production use
+  - API keys are stored as environment variables
+  
+  ### Advanced Usage
+  
+  - Install additional software using the Desktop tab
+  - Set up password managers for authentication
+  - Use the REST API for programmatic task creation
+  - Configure applications for specific workflows
+  
+  For full documentation, visit: https://docs.bytebot.ai
+
+links:
+  - title: Website
+    url: https://bytebot.ai
+  - title: Documentation
+    url: https://docs.bytebot.ai
+  - title: GitHub Repository
+    url: https://github.com/bytebot-ai/bytebot
+  - title: Discord Community
+    url: https://discord.com/invite/d9ewZkWPTP
+  - title: API Reference
+    url: https://docs.bytebot.ai/api-reference/introduction
+
+changeLog:
+  - date: 2026-01-04
+    changes:
+      - Initial Easypanel template release
+
+contributors:
+  - name: Bytebot Team
+    url: https://github.com/bytebot-ai
